@@ -23,9 +23,13 @@ class UserList(viewsets.ViewSet):
 
     def create(self, request):
         try:
+            print(f'1')
             serializer = UserSerializer(data=request.data)
+            print(f'2')
             if serializer.is_valid():
+                print(f'3')
                 serializer.save(password=request.data['password'])
+                print(f'4Binc       ')
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as err:
