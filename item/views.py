@@ -1,11 +1,15 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from .models import Item
 from .serializers import ItemSerializer
 
 class ItemViewSet(viewsets.ViewSet):
-    
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
+    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
+
     def list(self, request):
         try:
             items = Item.objects.all()

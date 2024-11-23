@@ -1,13 +1,18 @@
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from .models import User
 from .serializers import UserSerializer
 
 
-class UserList(APIView):
-    def get(self, request):
+class UserList(viewsets.ViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
+
+    def list(self, request):
         try:
             users = User.objects.all()
             serializer = UserSerializer(users, many=True)
@@ -16,7 +21,7 @@ class UserList(APIView):
             print(f'Err get: {err}')
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self, request):
+    def create(self, request):
         try:
             serializer = UserSerializer(data=request.data)
             if serializer.is_valid():
@@ -27,7 +32,7 @@ class UserList(APIView):
             print(f'Err post: {err}')
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
-    def put(self, request):
+    def update(self, request):
         try:
             user = User.objects.get(pk=request.data.get('id'))        
             serializer = UserSerializer(user, data=request.data)
@@ -37,8 +42,13 @@ class UserList(APIView):
         except Exception as err:
             print(f'Err put: {err}')
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def retrieve(self, request, pk=None):
+        item = User.objects.get(pk=pk)
+        serializer = UserSerializer(item)
+        return Response(serializer.data)
     
-    def delete(self, request):
+    def destroy(self, request):
         try:
             user = User.objects.get(pk=request.data.get('id'))
             if user:
