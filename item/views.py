@@ -12,8 +12,11 @@ class ItemViewSet(viewsets.ViewSet):
 
     def list(self, request):
         try:
+            print(f'1')
             items = Item.objects.all()
+            print(f'2: {items}')
             serializer = ItemSerializer(items, many=True)
+            print(f'3: {serializer.data}')
             return Response(serializer.data)
         except Exception as err:
             print(f'Err list item/views: {err}')
