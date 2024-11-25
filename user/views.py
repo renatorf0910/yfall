@@ -1,8 +1,11 @@
 from rest_framework import status, viewsets
+from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
+
+from yfall.utils import valid_password
 from .models import User
 from .serializers import UserSerializer
 
@@ -10,7 +13,7 @@ from .serializers import UserSerializer
 class UserList(viewsets.ViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
+    permission_classes = [AllowAny,]
 
     def list(self, request):
         try:
@@ -23,13 +26,14 @@ class UserList(viewsets.ViewSet):
 
     def create(self, request):
         try:
-            print(f'1')
+            password = request.data.get('password')
+            if not valid_password(password):
+                return Response({'message': 'Invalid format password'}, status=status.HTTP_400_BAD_REQUEST)
+            print(f'request.data: {request.data}')
             serializer = UserSerializer(data=request.data)
-            print(f'2')
             if serializer.is_valid():
-                print(f'3')
-                serializer.save(password=request.data['password'])
-                print(f'4Binc       ')
+                print(f'1')
+                serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as err:
